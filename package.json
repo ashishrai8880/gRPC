@@ -1,0 +1,24 @@
+{
+  "name": "grpc",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start-degree": "node ./degree/main.js",
+    "start-processor": "node ./process/main.js",
+    "start-main": "node ./main/main.js",
+    "start": "concurrently \"npm run start-degree\" \"npm run start-processor\" \"npm run start-main\"",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.14.3",
+    "@grpc/proto-loader": "^0.8.0",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}
