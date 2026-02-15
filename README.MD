@@ -201,3 +201,48 @@ Use it like:
 ```
     const result = await findWithRetry(degreeClient, { id: 1 });
 ```
+
+5️⃣ Enable gRPC Built-in Retry (Advanced)
+You can enable retry policy when creating client:
+
+```
+const client = new DegreeService(
+  "localhost:50051",
+  grpc.credentials.createInsecure(),
+  {
+    "grpc.enable_retries": 1,
+    "grpc.initial_reconnect_backoff_ms": 100,
+    "grpc.max_reconnect_backoff_ms": 1000,
+  }
+);
+```
+
+But this mostly helps with connection retries.
+
+For per-RPC retry policy, you need service config:
+
+```
+const serviceConfig = {
+  methodConfig: [{
+    name: [{ service: "degree.DegreeService" }],
+    retryPolicy: {
+      maxAttempts: 4,
+      initialBackoff: "0.1s",
+      maxBackoff: "1s",
+      backoffMultiplier: 2,
+      retryableStatusCodes: ["UNAVAILABLE"]
+    }
+  }]
+};
+```
+
+Pass it as:
+
+```
+{
+  "grpc.service_config": JSON.stringify(serviceConfig)
+}
+```
+⚠️ Node gRPC retry support is not as mature as Go/Java.
+
+For Node, manual retry is often clearer.
