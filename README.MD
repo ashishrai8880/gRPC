@@ -149,3 +149,55 @@ Pattern 2 — Publish Proto as NPM Package
 
 Each microservice installs:
     npm install @company/protos
+
+🏗️ How to implement retry logic in gRPC ?
+
+In Node.js (@grpc/grpc-js), retries work only if:
+    You enable them via channel options
+    The server returns retryable status codes
+    Service config allows retry
+
+Important retryable status codes:
+    UNAVAILABLE
+    DEADLINE_EXCEEDED
+    RESOURCE_EXHAUSTED
+
+🚀 3️⃣ Easiest Way: Manual Retry Wrapper (Recommended for Learning)
+
+Let’s say your main service calls:
+
+``` 
+degreeClient.find({ id: 1 }, callback) 
+```
+
+You can wrap it like this:
+
+``` 
+function findWithRetry(client, request, retries = 3, delay = 500) {
+  return new Promise((resolve, reject) => {
+    function attempt(n) {
+      client.find(request, (err, response) => {
+        if (!err) {
+          return resolve(response);
+        }
+
+        if (n === 0) {
+          return reject(err);
+        }
+
+        console.log(`Retrying... attempts left: ${n}`);
+        setTimeout(() => attempt(n - 1), delay);
+      });
+    }
+
+    attempt(retries);
+  });
+}
+
+ ```
+
+Use it like:
+
+```
+    const result = await findWithRetry(degreeClient, { id: 1 });
+```
